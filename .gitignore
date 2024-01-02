@@ -1,3 +1,11 @@
+# REPO IGNORES:
+tags
+tags/
+tags*
+
+
+# PYTHON TEMPLATE:
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
