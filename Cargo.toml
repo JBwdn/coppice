@@ -1,0 +1,14 @@
+[package]
+name = "coppice"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "coppice"
+crate-type = ["cdylib"]
+
+[dependencies]
+csv = "1.3.0"
+numpy = "0.20.0"
+pyo3 = "0.20.0"
+rand = "0.8.5"
