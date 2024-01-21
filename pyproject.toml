@@ -33,6 +33,7 @@ module-name = "coppice._coppice"
 
 [tool.pylint]
 disable = [ "import-error", "fixme",]
+extension-pkg-whitelist = [ "_coppice",]
 
 [tool.pyright]
 reportMissingImports = false

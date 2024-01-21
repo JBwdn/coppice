@@ -15,7 +15,7 @@ repos:
           - id: pylint
 
     - repo: https://github.com/RobertCraigie/pyright-python
-      rev: v1.1.344
+      rev: v1.1.348
       hooks:
           - id: pyright
 
@@ -24,3 +24,8 @@ repos:
       hooks:
           - id: check-pyproject
           - id: reformat-pyproject
+    - repo: https://github.com/doublify/pre-commit-rust
+      rev: v1.0
+      hooks:
+          - id: fmt
+          - id: cargo-check
