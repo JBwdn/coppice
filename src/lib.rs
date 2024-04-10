@@ -5,11 +5,10 @@ use numpy::{PyArray1, PyArray2};
 use pyo3::prelude::*;
 mod criteria;
 mod forest;
-mod grow_tree;
 mod io;
 mod metrics;
-mod node;
 mod splitting;
+mod tree;
 
 #[pyfunction]
 fn train_tree_np(x_py: &PyArray2<f32>, y_py: &PyArray1<u32>, max_depth: u32) -> () {
@@ -22,9 +21,9 @@ fn train_tree_np(x_py: &PyArray2<f32>, y_py: &PyArray1<u32>, max_depth: u32) -> 
     let x_test = x[train_limit..].to_vec();
     let y_test = y[train_limit..].to_vec();
 
-    let tree = grow_tree::grow_tree(&x_train, &y_train, max_depth);
-    println!("Tree depth: {:?}", node::depth(&tree));
-    let y_hat = node::predict(&x_test, &tree);
+    let tree = tree::grow_tree(&x_train, &y_train, max_depth);
+    println!("Tree depth: {:?}", tree::depth(&tree));
+    let y_hat = tree::predict(&x_test, &tree);
     metrics::classification_report(&y_hat, &y_test);
 }
 
@@ -44,14 +43,6 @@ fn train_forest_np(x_py: &PyArray2<f32>, y_py: &PyArray1<u32>, max_depth: u32, n
     metrics::classification_report(&y_hat, &y_test);
 }
 
-#[pyfunction]
-fn classification_report(y_hat_py: &PyArray1<u32>, y_py: &PyArray1<u32>) -> () {
-    let y_hat = io::numpy_to_y(y_hat_py);
-    let y = io::numpy_to_y(y_py);
-    metrics::classification_report(&y_hat, &y);
-}
-
-/// A Python module implemented in Rust.
 #[pymodule]
 fn _coppice(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(train_tree_np, m)?)?;

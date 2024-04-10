@@ -17,7 +17,7 @@ pub fn load_data_x(path: &str) -> Vec<Vec<f32>> {
         x.push(row);
     }
     println!("Shape of x matrix ({}, {})", x.len(), x[0].len());
-    return x;
+    x
 }
 
 pub fn load_data_y(path: &str) -> Vec<u32> {
@@ -32,7 +32,7 @@ pub fn load_data_y(path: &str) -> Vec<u32> {
         }
     }
     println!("Shape of y ({},)", y.len());
-    return y;
+    y
 }
 
 pub fn numpy_to_x(py_x: &PyArray<f32, Dim<[usize; 2]>>) -> Vec<Vec<f32>> {
@@ -47,6 +47,7 @@ pub fn numpy_to_x(py_x: &PyArray<f32, Dim<[usize; 2]>>) -> Vec<Vec<f32>> {
             x.push(row);
         }
     }
+    println!("Shape of x matrix ({}, {})", x.len(), x[0].len());
     x
 }
 
@@ -58,5 +59,6 @@ pub fn numpy_to_y(py_y: &PyArray<u32, Dim<[usize; 1]>>) -> Vec<u32> {
             y.push(array_y[[i]] as u32);
         }
     }
+    println!("Shape of y ({},)", y.len());
     y
 }

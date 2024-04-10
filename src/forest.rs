@@ -1,6 +1,4 @@
-use crate::grow_tree::grow_tree;
-use crate::node::predict;
-use crate::node::Node;
+use crate::tree::{grow_tree, predict, Node};
 use rand::distributions::{Distribution, Uniform};
 
 pub struct Forest {
@@ -37,7 +35,6 @@ impl Forest {
         let mut results = Vec::new();
         for (i, tree) in self.trees.iter().enumerate() {
             let y_hat = predict(x, tree);
-            // stack predictions as columns
             if i == 0 {
                 for y in y_hat {
                     results.push(vec![y]);
@@ -48,7 +45,6 @@ impl Forest {
                 }
             }
         }
-        // return most repeated value in each row
         results.iter().map(|row| mode(row)).collect()
     }
 }
@@ -73,10 +69,18 @@ fn bootstrap_sample(x: &Vec<Vec<f32>>, y: &Vec<u32>) -> (Vec<Vec<f32>>, Vec<u32>
 
 pub fn grow_forest(x: &Vec<Vec<f32>>, y: &Vec<u32>, max_depth: u32, n: u32) -> Forest {
     let mut forest = Forest::new();
-    for i in 0..n {
-        println!("Growing tree {} of {}", i + 1, n);
-        let (x_boostrapped, y_boostrapped) = bootstrap_sample(x, y);
-        let tree = grow_tree(&x_boostrapped, &y_boostrapped, max_depth);
+    let mut handles = vec![];
+    for _ in 0..n {
+        let x = x.clone();
+        let y = y.clone();
+        let handle = std::thread::spawn(move || {
+            let (x_boostrapped, y_boostrapped) = bootstrap_sample(&x, &y);
+            grow_tree(&x_boostrapped, &y_boostrapped, max_depth)
+        });
+        handles.push(handle);
+    }
+    for handle in handles {
+        let tree = handle.join().unwrap();
         forest.add_tree(tree);
     }
     forest

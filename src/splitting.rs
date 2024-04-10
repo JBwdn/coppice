@@ -20,6 +20,7 @@ pub fn split(
     }
     (left_x, left_y, right_x, right_y)
 }
+
 pub fn find_best_split(
     x: &Vec<Vec<f32>>,
     y: &Vec<u32>,
@@ -29,17 +30,35 @@ pub fn find_best_split(
     let mut best_thresh = 0.0;
     let mut best_i = 0 as u32;
 
+    let mut handles = vec![];
     for feature_i in 0..x[0].len() {
         let x_col = x.iter().map(|row| row[feature_i]).collect::<Vec<f32>>();
         let all_thresh = x_col.iter().cloned().collect::<Vec<f32>>();
 
-        for thresh in all_thresh {
-            let score = criterion(x_col.clone(), y.clone(), thresh);
-            if score > best_score {
-                best_score = score;
-                best_thresh = thresh;
-                best_i = feature_i as u32;
+        let x_col = x_col.clone();
+        let y = y.clone();
+        let criterion = criterion;
+
+        let handle = std::thread::spawn(move || {
+            let mut best_score = 0.0;
+            let mut best_thresh = 0.0;
+            for thresh in all_thresh {
+                let score = criterion(x_col.clone(), y.clone(), thresh);
+                if score > best_score {
+                    best_score = score;
+                    best_thresh = thresh;
+                }
             }
+            (best_score, best_thresh, feature_i)
+        });
+        handles.push(handle);
+    }
+    for handle in handles {
+        let (score, thresh, feature_i) = handle.join().unwrap();
+        if score > best_score {
+            best_score = score;
+            best_thresh = thresh;
+            best_i = feature_i as u32;
         }
     }
     (best_thresh, best_i)
